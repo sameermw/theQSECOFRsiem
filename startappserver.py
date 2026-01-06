@@ -17,8 +17,8 @@ import chardet
 # ---------------------------
 # Configuration
 # ---------------------------
-LOG_FILE = '/opt/satsiem/logs/access.log'
-DB_URI = 'sqlite:////opt/satsiem/logs/logs.db'
+LOG_FILE = '/opt/theqsecofrsiem/logs/access.log'
+DB_URI = 'sqlite:////opt/theqsecofrsiem/logs/logs.db'
 UDP_PORT = 1514
 TCP_PORT = 1514
 MAX_LOGS = 1000
