@@ -1,0 +1,28 @@
+2025-09-10 17:10:53,609 - INFO - UDP server started on 0.0.0.0:514
+2025-09-10 17:10:53,610 - INFO - TCP server started on 0.0.0.0:514
+2025-09-10 17:13:38,017 - INFO - Purged 1 old records to maintain max 100.
+2025-09-10 17:13:38,017 - INFO - Logged SYSLOG_BSD from S78DC0C0: Profile changed src=192.168.68.100 dst=192.168.69.254        msg=TYPE:JRN CLS:AUD JJOB:QZSOSIGN JUSE
+2025-09-11 08:40:08,501 - ERROR - Database insert error: Recursive use of cursors not allowed., raw: '<166>Sep 11 08:38:42 S78DC0C0 Command execution allowed by Powertech Command Security src=192.168.68'
+2025-09-11 08:40:08,501 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution allowed by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:JRN 
+2025-09-11 08:40:08,501 - ERROR - Database insert error: Incorrect number of bindings supplied. The current statement uses 0, and there are 5 supplied., raw: '<166>Sep 11 08:38:41 S78DC0C0 Command execution initiation by Powertech Command Security src=192.168'
+2025-09-11 08:40:08,501 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution initiation by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:J
+2025-09-11 10:07:34,007 - ERROR - Database insert error: Recursive use of cursors not allowed., raw: '<166>Sep 11 10:06:09 S78DC0C0 Command execution allowed by Powertech Command Security src=192.168.68'
+2025-09-11 10:07:34,010 - INFO - Purged 1 old records to maintain max 100.
+2025-09-11 10:07:34,010 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution allowed by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:JRN 
+2025-09-11 10:07:34,011 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution initiation by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:J
+2025-09-11 11:56:16,462 - ERROR - Database insert error: Recursive use of cursors not allowed., raw: '<166>Sep 11 11:54:56 S78DC0C0 Authority Broker swap started src=192.168.68.100 dst=192.168.69.254 ms'
+2025-09-11 11:56:16,462 - ERROR - Database purge error: Recursive use of cursors not allowed.
+2025-09-11 11:56:16,462 - INFO - Logged SYSLOG_BSD from S78DC0C0: Authority Broker swap started src=192.168.68.100 dst=192.168.69.254 msg=TYPE:JRN CLS:AUD JJOB:QPADEV
+2025-09-11 11:56:16,479 - ERROR - Database insert error: Incorrect number of bindings supplied. The current statement uses 0, and there are 5 supplied., raw: '<166>Sep 11 11:54:56 S78DC0C0 Authority Broker history purged src=192.168.68.100 dst=0.0.0.0 msg=TYP'
+2025-09-11 11:56:16,493 - INFO - Purged 1 old records to maintain max 100.
+2025-09-11 11:56:16,493 - INFO - Logged SYSLOG_BSD from S78DC0C0: Authority Broker history purged src=192.168.68.100 dst=0.0.0.0 msg=TYPE:JRN CLS:AUD JJOB:PABPURGE JU
+2025-09-11 11:56:16,509 - ERROR - Database purge error: tuple index out of range
+2025-09-11 11:56:16,509 - INFO - Logged SYSLOG_BSD from S78DC0C0: Auditing setting changed src=192.168.68.100 dst=192.168.69.254 msg=TYPE:JRN CLS:AUD JJOB:QPADEV0009 
+2025-09-11 11:56:31,493 - ERROR - Database insert error: Recursive use of cursors not allowed., raw: '<166>Sep 11 11:55:11 S78DC0C0 Command execution allowed by Powertech Command Security src=192.168.68'
+2025-09-11 11:56:31,499 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution allowed by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:JRN 
+2025-09-11 11:56:31,499 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution initiation by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:J
+2025-09-11 11:59:01,802 - ERROR - Database insert error: Recursive use of cursors not allowed., raw: '<166>Sep 11 11:57:37 S78DC0C0 Command execution allowed by Powertech Command Security src=192.168.68'
+2025-09-11 11:59:01,803 - ERROR - Database purge error: Recursive use of cursors not allowed.
+2025-09-11 11:59:01,803 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution initiation by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:J
+2025-09-11 11:59:01,803 - ERROR - Database purge error: Error binding parameter 0 - probably unsupported type.
+2025-09-11 11:59:01,804 - INFO - Logged SYSLOG_BSD from S78DC0C0: Command execution allowed by Powertech Command Security src=192.168.68.100 dst=0.0.0.0 msg=TYPE:JRN 

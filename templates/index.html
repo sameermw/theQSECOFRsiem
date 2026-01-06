@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>theQSECOFRsiem IBM i Event Monitor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body class="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <header class="bg-white dark:bg-gray-800 shadow sticky top-0 z-10">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">theQSECOFRsiem IBM i Event Monitor</h1>
+            <div class="flex flex-wrap items-center gap-4">
+                <span id="serverTime" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                <label for="formatFilter" class="text-sm text-gray-900 dark:text-gray-100">Filter by Format:</label>
+                <select id="formatFilter"
+                    class="border rounded px-3 py-2 bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100">
+                    <option value="">All</option>
+                    <option value="SYSLOG_RFC5424">SYSLOG_RFC5424</option>
+                    <option value="CEF">CEF</option>
+                    <option value="LEEF">LEEF</option>
+                    <option value="SYSLOG_BSD">SYSLOG_BSD</option>
+                </select>
+                <button id="refreshButton"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition">Refresh</button>
+                <button id="themeToggle"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition">Toggle
+                    Theme</button>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
+        <table id="logTable" class="w-full border-collapse bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+            <thead>
+                <tr class="bg-gray-200 dark:bg-gray-700">
+                    <th class="p-3 text-left text-sm font-semibold w-1/5">Timestamp</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/6">Host</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/3">Message</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/6">Format Type</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/3">Raw</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/6">Severity</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/6">User</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/6">Device</th>
+                    <th class="p-3 text-left text-sm font-semibold w-1/6">Message ID</th>
+                </tr>
+            </thead>
+            <tbody id="logTableBody">
+                {% for log in logs %}
+                <tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 log-row"
+                    data-message="{{ log[2] }}" data-raw="{{ log[4] }}">
+                    <td class="p-3 text-sm">{{ log[0] }}</td>
+                    <td class="p-3 text-sm">{{ log[1] }}</td>
+                    <td class="p-3 text-sm max-w-0 truncate message-cell">{{ log[2] }}</td>
+                    <td class="p-3 text-sm">{{ log[3] }}</td>
+                    <td class="p-3 text-sm max-w-0 truncate raw-cell">{{ log[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+    <footer class="bg-white dark:bg-gray-800 shadow sticky bottom-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
+            <p class="text-sm text-gray-500 dark:text-gray-400">theQSECOFRsiem IBM i Event Monitor &copy; Sameera
+                Wijayasiri
+                |
+                <a href="https://theqsecofr.com" target="_blank" rel="noopener noreferrer">theQSECOFR.com</a> 2025
+            </p>
+        </div>
+    </footer>
+    <script>
+        console.log('JavaScript loaded at', new Date().toLocaleString());
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function updateLogTable(logs) {
+            console.log('Updating table with', logs.length, 'logs');
+            const tbody = document.getElementById('logTableBody');
+            if (!tbody) {
+                console.error('logTableBody not found');
+                return;
+            }
+            if (!Array.isArray(logs)) {
+                console.error('Invalid logs data: not an array');
+                return;
+            }
+            tbody.innerHTML = '';
+            logs.forEach((log, index) => {
+                if (!Array.isArray(log) || log.length < 5) { // accept 5+ columns
+                    console.warn('Invalid log entry at index', index, ':', log);
+                    return;
+                }
+                const row = document.createElement('tr');
+                row.className = 'border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 log-row';
+                row.dataset.message = log[2] || '';
+                row.dataset.raw = log[4] || '';
+                row.innerHTML = `
+                    <td class="p-3 text-sm">${log[0] || ''}</td>
+                    <td class="p-3 text-sm">${log[1] || ''}</td>
+                    <td class="p-3 text-sm max-w-0 truncate message-cell">${log[2] || ''}</td>
+                    <td class="p-3 text-sm">${log[3] || ''}</td>
+                    <td class="p-3 text-sm max-w-0 truncate raw-cell">${log[4] || ''}</td>
+                    <td class="p-3 text-sm">${log[5] || ''}</td>
+                    <td class="p-3 text-sm">${log[6] || ''}</td>
+                    <td class="p-3 text-sm">${log[7] || ''}</td>
+                    <td class="p-3 text-sm">${log[8] || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            filterLogs();
+            attachRowClickListeners();
+            console.log('Table updated, rows:', tbody.rows.length);
+        }
+
+        socket.on('new_log', (batch) => {
+            batch.forEach(data => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <td>${data.timestamp || ''}</td>
+            <td>${data.host || ''}</td>
+            <td class="message-cell">${data.message || ''}</td>
+            <td>${data.format_type || ''}</td>
+            <td class="raw-cell">${data.raw || ''}</td>
+        `;
+                document.getElementById('logTableBody').insertBefore(row, tbody.firstChild);
+            });
+        });
+
+        /*         socket.on('new_log', (data) => {
+                    console.log('SocketIO new_log:', data);
+                    const tbody = document.getElementById('logTableBody');
+                    if (!tbody) {
+                        console.error('logTableBody not found');
+                        return;
+                    }
+                    const row = document.createElement('tr');
+                    row.className = 'border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 log-row';
+                    row.dataset.message = data.message || '';
+                    row.dataset.raw = data.raw || '';
+                    row.innerHTML = `
+                        <td class="p-3 text-sm">${data.timestamp || ''}</td>
+                        <td class="p-3 text-sm">${data.host || ''}</td>
+                        <td class="p-3 text-sm max-w-0 truncate message-cell">${data.message || ''}</td>
+                        <td class="p-3 text-sm">${data.format_type || ''}</td>
+                        <td class="p-3 text-sm max-w-0 truncate raw-cell">${data.raw || ''}</td>
+                        <td class="p-3 text-sm">${data.sev || ''}</td>
+                        <td class="p-3 text-sm">${data.user || ''}</td>
+                        <td class="p-3 text-sm">${data.dvc || ''}</td>
+                        <td class="p-3 text-sm">${data.msgid || ''}</td>
+                    `;
+                    tbody.insertBefore(row, tbody.firstChild);
+                    filterLogs();
+                    attachRowClickListeners();
+                }); */
+
+        socket.on('server_time', (time) => {
+            const serverTime = document.getElementById('serverTime');
+            if (serverTime) {
+                serverTime.textContent = new Date(time).toLocaleString();
+                console.log('Server time updated:', time);
+            }
+        });
+
+        socket.on('connect', () => {
+            socket.emit('get_server_time');
+            console.log('SocketIO connected at', new Date().toLocaleString());
+        });
+
+        function filterLogs() {
+            const formatFilter = document.getElementById('formatFilter');
+            const tbody = document.getElementById('logTableBody');
+            if (!formatFilter || !tbody) {
+                console.error('filterLogs failed: elements not found');
+                return;
+            }
+            const filter = formatFilter.value;
+            console.log('Filtering logs by:', filter);
+            Array.from(tbody.rows).forEach(row => {
+                const format = row.cells[3].textContent;
+                row.style.display = (filter === '' || format === filter) ? '' : 'none';
+            });
+        }
+
+        function attachRowClickListeners() {
+            const rows = document.querySelectorAll('.log-row');
+            rows.forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    const messageCell = row.querySelector('.message-cell');
+                    const rawCell = row.querySelector('.raw-cell');
+                    if (row.classList.contains('expanded')) {
+                        row.classList.remove('expanded');
+                        messageCell.textContent = (row.dataset.message || '').slice(0, 50) + (row.dataset.message.length > 50 ? '...' : '');
+                        rawCell.textContent = (row.dataset.raw || '').slice(0, 50) + (row.dataset.raw.length > 50 ? '...' : '');
+                    } else {
+                        row.classList.add('expanded');
+                        messageCell.textContent = row.dataset.message || '';
+                        rawCell.textContent = row.dataset.raw || '';
+                    }
+                });
+            });
+        }
+
+        window.testRefresh = function () {
+            console.log('testRefresh called at', new Date().toLocaleString());
+            fetch('/api/logs', { headers: { 'Accept': 'application/json' } })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                    return response.json();
+                })
+                .then(logs => {
+                    console.log('Test fetched logs:', logs);
+                    updateLogTable(logs);
+                    console.log('Test refresh successful, fetched', logs.length, 'logs');
+                })
+                .catch(error => console.error('Test refresh error:', error));
+        };
+
+        window.checkDOM = function () {
+            console.log('Checking DOM elements:');
+            console.log('formatFilter:', !!document.getElementById('formatFilter'));
+            console.log('logTableBody:', !!document.getElementById('logTableBody'));
+            console.log('refreshButton:', !!document.getElementById('refreshButton'));
+            console.log('logTable rows:', document.getElementById('logTableBody')?.rows.length || 'not found');
+            console.log('logTableBody innerHTML (first 500 chars):', document.getElementById('logTableBody')?.innerHTML.slice(0, 500) || 'not found');
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial load from API (IMPORTANT)
+            fetch('/api/logs', { headers: { 'Accept': 'application/json' } })
+                .then(response => response.json())
+                .then(logs => {
+                    console.log('Initial logs loaded:', logs.length);
+                    updateLogTable(logs);
+                })
+                .catch(err => console.error('Initial load failed:', err));
+            console.log('DOM loaded at', new Date().toLocaleString());
+            window.checkDOM();
+
+            const formatFilter = document.getElementById('formatFilter');
+            if (formatFilter) {
+                formatFilter.addEventListener('change', filterLogs);
+                console.log('Format filter listener attached');
+            }
+
+            const refreshButton = document.getElementById('refreshButton');
+            if (refreshButton) {
+                refreshButton.addEventListener('click', () => {
+                    console.log('Refresh clicked at', new Date().toLocaleString());
+                    fetch('/api/logs', { headers: { 'Accept': 'application/json' } })
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                            return response.json();
+                        })
+                        .then(logs => {
+                            console.log('Fetched logs:', logs);
+                            updateLogTable(logs);
+                            console.log('Refresh successful, fetched', logs.length, 'logs');
+                        })
+                        .catch(error => console.error('Refresh error:', error));
+                });
+            }
+
+            setInterval(() => {
+                console.log('Auto-refresh at', new Date().toLocaleString());
+                fetch('/api/logs', { headers: { 'Accept': 'application/json' } })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(logs => {
+                        console.log('Auto-refresh fetched logs:', logs);
+                        updateLogTable(logs);
+                    })
+                    .catch(error => console.error('Auto-refresh error:', error));
+            }, 30000);
+
+            const htmlElement = document.documentElement;
+            const themeToggle = document.getElementById('themeToggle');
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    htmlElement.classList.add('dark');
+                    themeToggle.textContent = 'Light Mode';
+                } else {
+                    htmlElement.classList.remove('dark');
+                    themeToggle.textContent = 'Dark Mode';
+                }
+                localStorage.setItem('theme', theme);
+                console.log('Applied theme:', theme);
+            }
+
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const newTheme = htmlElement.classList.contains('dark') ? 'light' : 'dark';
+                    applyTheme(newTheme);
+                });
+            }
+
+            attachRowClickListeners();
+        });
+    </script>
+</body>
+
+</html>
