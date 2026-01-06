@@ -304,6 +304,23 @@
 
             attachRowClickListeners();
         });
+
+	function startClock() {
+    		const serverTimeElem = document.getElementById('serverTime');
+    		if (!serverTimeElem) return;
+
+    		function updateTime() {
+        		const now = new Date(); // current system time
+        		serverTimeElem.textContent = now.toLocaleString(); // format nicely
+    		}
+
+    		updateTime(); // initial call
+    		setInterval(updateTime, 1000); // update every second
+	}
+
+	// Start the clock when DOM is ready
+	document.addEventListener('DOMContentLoaded', startClock);
+
     </script>
 </body>
 

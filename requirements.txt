@@ -6,3 +6,4 @@ psutil
 pycef
 chardet
 eventlet
+gunicorn
