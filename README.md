@@ -227,5 +227,5 @@ If the service fails at startup, verify log paths in startappserver.py.
 
 ## 8. License
 
-MIT License — Sameera Wijayasiri, 2025
+aaa .Sameera Wijayasiri, 2025
 
