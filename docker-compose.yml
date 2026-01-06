@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  siem:
+    build: .
+    container_name: theqsecofrsiem
+    restart: unless-stopped
+    ports:
+      - "5000:5000/tcp"    # Flask UI
+      - "1514:1514/tcp"    # TCP syslog
+      - "1514:1514/udp"    # UDP syslog
+    volumes:
+      - ./logs:/opt/theqsecofrsiem/logs
+      - ./data:/opt/theqsecofrsiem/data
+    environment:
+      - MAX_LOGS=1000

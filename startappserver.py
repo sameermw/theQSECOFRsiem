@@ -13,16 +13,24 @@ import signal
 import sys
 import pycef
 import chardet
+import os
 
 # ---------------------------
 # Configuration
 # ---------------------------
-LOG_FILE = '/opt/theqsecofrsiem/logs/access.log'
-DB_URI = 'sqlite:////opt/theqsecofrsiem/logs/logs.db'
-UDP_PORT = 1514
-TCP_PORT = 1514
-MAX_LOGS = 1000
-SOCKETIO_BATCH_INTERVAL = 1.0  # seconds
+#LOG_FILE = '/opt/theqsecofrsiem/logs/access.log'
+#DB_URI = 'sqlite:////opt/theqsecofrsiem/logs/logs.db'
+#UDP_PORT = 1514
+#TCP_PORT = 1514
+#MAX_LOGS = 1000
+#SOCKETIO_BATCH_INTERVAL = 1.0  # seconds
+
+LOG_FILE = os.getenv('LOG_FILE', '/opt/theqsecofrsiem/logs/access.log')
+DB_URI = os.getenv('DB_URI', 'sqlite:////opt/theqsecofrsiem/logs/logs.db')
+UDP_PORT = int(os.getenv('UDP_PORT', 1514))
+TCP_PORT = int(os.getenv('TCP_PORT', 1514))
+MAX_LOGS = int(os.getenv('MAX_LOGS', 1000))
+SOCKETIO_BATCH_INTERVAL = float(os.getenv('SOCKETIO_BATCH_INTERVAL', 1.0))
 
 # ---------------------------
 # Logging
@@ -298,10 +306,26 @@ def tcp_server():
     sock.listen(50)
     logging.info(f"TCP server listening on 0.0.0.0:{TCP_PORT}")
     while True:
-        conn, addr = sock.accept()
-        data = conn.recv(8192)
-        process_log(data, addr)
-        conn.close()
+        while True:
+            conn, addr = sock.accept()
+            threading.Thread(target=handle_tcp_connection, args=(conn, addr), daemon=True).start()
+
+        #conn, addr = sock.accept()
+        #data = conn.recv(8192)
+        #process_log(data, addr)
+        #conn.close()
+
+def handle_tcp_connection(conn, addr):
+    with conn:
+        buffer = b""
+        while True:
+            data = conn.recv(4096)
+            if not data:
+                break
+            buffer += data
+            while b'\n' in buffer:
+                line, buffer = buffer.split(b'\n', 1)
+                process_log(line, addr)
 
 # ---------------------------
 # SocketIO Emitter
