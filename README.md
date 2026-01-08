@@ -51,6 +51,7 @@ This project provides a lightweight SIEM event monitor for IBM i systems. It par
 ---
 
 ## Setup Instructions
+## Option 1 - By cloning git repo
 
 ### 1. Python Environment
 
@@ -202,6 +203,7 @@ Thumbs.db
 
 #### Systemd runtime artifacts
 *.pid
+```
 
 ## 6. Notes / Best Practices
 
@@ -225,7 +227,46 @@ ss -lntp | grep 5000
 
 If the service fails at startup, verify log paths in startappserver.py.
 
-## 8. License
+## Option 2 - using docker image.
+
+## 8. Docker 
+
+- Download docker image archive from above github repo to /tmp or different location.
+ex: image archive name - theqsecofrsiem_x.xx.tar
+```scp theqsecofrsiem_1.0.tar user@otherpc:/tmp/```
+- Load image on the target machine
+```docker load -i /tmp/theqsecofrsiem_1.0.tar ```
+- verify
+```docker images ```
+- Run container on the new PC
+```
+docker run -d \
+  --name theqsecofrsiwm \
+  -p 5000:5000 \
+  -p 1514:1514/udp \
+  -p 1514:1514/tcp \
+  theqsecofrsiem:1.0
+
+```
+- Your SIEM is now running on the new machine.
+- Persist Logs & Database (VERY IMPORTANT). For your SIEM, always use volumes:
+```
+docker run -d \
+  --name theqsecofrsiem \
+  -p 5000:5000 \
+  -p 1514:1514/udp \
+  -p 1514:1514/tcp \
+  -v satsiem_logs:/opt/theqsecofrsiem/logs \
+  theqsecofrsiem:1.0
+
+```
+- Check Container Health
+```
+docker ps
+docker logs -f satsiem
+```
+
+## 9. License
 
 aaa .Sameera Wijayasiri, 2025
 
