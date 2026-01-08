@@ -1,6 +1,6 @@
-# theQSECOFRsiem IBM i Event Monitor
+# theQSECOFRsiem - IBM i Event Monitor
 
-**theQSECOFR SIEM IBM i Event Monitor**
+**theQSECOFRsiem -  IBM i Event Monitor**
 
 This project provides a lightweight SIEM event monitor for IBM i systems. It parses and displays log events in **RFC5424**, **CEF**, **LEEF**, and **BSD** formats with a live web interface.
 
